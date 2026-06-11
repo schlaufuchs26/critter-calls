@@ -1,4 +1,6 @@
-# 🔊 Critter Calls - Animal Sound Game
+# 🔊 Critter Calls
+
+[![coverage](https://raw.githubusercontent.com/schlaufuchs26/critter-calls/badge/coverage.svg)](https://github.com/schlaufuchs26/critter-calls/actions/workflows/test.yml?query=branch%3Amain)
 
 A fun web game where you guess animals based on their sounds! Test your knowledge of animal sounds with this interactive TypeScript game.
 
@@ -20,26 +22,26 @@ A fun web game where you guess animals based on their sounds! Test your knowledg
 
 ## 🛠️ Tech Stack
 
-- **TypeScript** - Type-safe JavaScript
-- **Vite** - Fast build tool and dev server
-- **pnpm** - Fast, disk space efficient package manager
-- **Vanilla CSS** - Clean, modern styling with CSS Grid and Flexbox
-- **Web Audio API** - For playing animal sounds
+- **Bun** — runtime, bundler, test runner, and dev server
+- **TypeScript** — type-safe JavaScript
+- **React 19** — UI components
+- **Web Audio API** — real-time sound playback + waveform visualization
+- **Happy DOM + Testing Library** — component tests
 
 ## 🚀 Development
 
 ```bash
-# Install dependencies (requires pnpm)
-pnpm install
+# Install dependencies
+bun install
 
 # Start development server
-pnpm dev
+bun dev
 
 # Build for production
-pnpm build
+bun run build
 
-# Preview production build
-pnpm preview
+# Run tests
+bun test
 ```
 
 ## 📱 Mobile Support

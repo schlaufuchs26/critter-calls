@@ -1,2 +1,7 @@
 [test]
 preload = ["./tests/happydom.ts", "./tests/testing-library.ts"]
+
+# Coverage: bun test --coverage or bun run test:coverage
+# Thresholds fail the run if not met (CI-ready)
+coverageSkipTestFiles = true
+coverageThreshold = { lines = 0.8, functions = 0.8, statements = 0.8 }
