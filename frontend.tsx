@@ -130,6 +130,9 @@ function useGame() {
 
 // --- Components ---
 
+const WAVEFORM_W = 320;
+const WAVEFORM_H = 60;
+
 function Waveform({
   isPlaying,
   getAnalyser,
@@ -150,26 +153,29 @@ function Waveform({
     const analyser = getAnalyser();
     if (!analyser) return;
 
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = WAVEFORM_W * dpr;
+    canvas.height = WAVEFORM_H * dpr;
+    ctx.scale(dpr, dpr);
+
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-    const W = canvas.width;
-    const H = canvas.height;
 
     const draw = () => {
       rafRef.current = requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.clearRect(0, 0, W, H);
+      ctx.clearRect(0, 0, WAVEFORM_W, WAVEFORM_H);
 
-      const barWidth = (W / bufferLength) * 2.5;
+      const barWidth = (WAVEFORM_W / bufferLength) * 2.5;
       const gap = 1;
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * H;
+        const barHeight = (dataArray[i] / 255) * WAVEFORM_H;
         const hue = 200 + (i / bufferLength) * 40;
         ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
-        ctx.fillRect(x, H - barHeight, barWidth - gap, barHeight);
+        ctx.fillRect(x, WAVEFORM_H - barHeight, barWidth - gap, barHeight);
         x += barWidth;
       }
     };
@@ -182,7 +188,11 @@ function Waveform({
   }, [isPlaying, getAnalyser]);
 
   return (
-    <canvas ref={canvasRef} className="waveform" width={320} height={60} />
+    <canvas
+      ref={canvasRef}
+      className="waveform"
+      style={{ width: WAVEFORM_W, height: WAVEFORM_H }}
+    />
   );
 }
 

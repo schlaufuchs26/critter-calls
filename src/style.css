@@ -161,9 +161,6 @@ body {
 
 .waveform {
   display: block;
-  width: 100%;
-  max-width: 400px;
-  height: 60px;
   border-radius: var(--border-radius);
 }
 
