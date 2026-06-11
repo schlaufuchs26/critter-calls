@@ -50,4 +50,4 @@ The game is fully responsive and works great on mobile devices with touch contro
 
 This project is open source and available under the MIT License.
 \n<!-- Build trigger -->
-\n## Deployment\n[Live site](https://schlaufuchs26.github.io/animal-sound-guessr/)
+\n## Deployment\n[Live site](https://schlaufuchs26.github.io/critter-calls/)
