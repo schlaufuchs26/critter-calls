@@ -124,10 +124,67 @@ function useGame() {
     nextRound,
     goToMenu,
     getProgress: () => game.getProgress(),
+    getAnalyser: () => game.getAnalyser(),
   };
 }
 
 // --- Components ---
+
+function Waveform({
+  isPlaying,
+  getAnalyser,
+}: {
+  isPlaying: boolean;
+  getAnalyser: () => AnalyserNode | null;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const analyser = getAnalyser();
+    if (!analyser) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const draw = () => {
+      rafRef.current = requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, W, H);
+
+      const barWidth = (W / bufferLength) * 2.5;
+      const gap = 1;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArray[i] / 255) * H;
+        const hue = 200 + (i / bufferLength) * 40;
+        ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
+        ctx.fillRect(x, H - barHeight, barWidth - gap, barHeight);
+        x += barWidth;
+      }
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [isPlaying, getAnalyser]);
+
+  return (
+    <canvas ref={canvasRef} className="waveform" width={320} height={60} />
+  );
+}
 
 function ModeSelect({ onSelect }: { onSelect: (mode: GameMode) => void }) {
   const dateStr = getTodaysDateString();
@@ -176,6 +233,7 @@ function GameScreen({
   onNext,
   onMenu,
   progress,
+  getAnalyser,
 }: {
   state: GameState;
   mode: GameMode;
@@ -186,6 +244,7 @@ function GameScreen({
   onNext: () => void;
   onMenu: () => void;
   progress: number;
+  getAnalyser: () => AnalyserNode | null;
 }) {
   return (
     <>
@@ -207,6 +266,7 @@ function GameScreen({
           onGuess={onGuess}
           onNext={onNext}
           onMenu={onMenu}
+          getAnalyser={getAnalyser}
         />
       </div>
     </>
@@ -267,6 +327,7 @@ function GameArea({
   onGuess,
   onNext,
   onMenu,
+  getAnalyser,
 }: {
   state: GameState;
   onPlay: () => void;
@@ -274,6 +335,7 @@ function GameArea({
   onGuess: (animal: Animal) => void;
   onNext: () => void;
   onMenu: () => void;
+  getAnalyser: () => AnalyserNode | null;
 }) {
   if (state.gameOver) {
     return <GameOverScreen state={state} onRestart={onNext} onMenu={onMenu} />;
@@ -281,7 +343,12 @@ function GameArea({
 
   return (
     <div className="game-area">
-      <SoundSection state={state} onPlay={onPlay} onStop={onStop} />
+      <SoundSection
+        state={state}
+        onPlay={onPlay}
+        onStop={onStop}
+        getAnalyser={getAnalyser}
+      />
       {state.showAnswer ? (
         <ResultSection state={state} onNext={onNext} />
       ) : (
@@ -295,10 +362,12 @@ function SoundSection({
   state,
   onPlay,
   onStop,
+  getAnalyser,
 }: {
   state: GameState;
   onPlay: () => void;
   onStop: () => void;
+  getAnalyser: () => AnalyserNode | null;
 }) {
   const question = state.isSquirrelRound
     ? "Which TWO animals do you hear?"
@@ -321,9 +390,7 @@ function SoundSection({
         >
           {state.isPlaying ? "⏸️" : "▶️"}
         </button>
-        <div className={`waveform ${state.isPlaying ? "playing" : ""}`}>
-          <span>{state.isPlaying ? "🎵 Playing..." : ""}</span>
-        </div>
+        <Waveform isPlaying={state.isPlaying} getAnalyser={getAnalyser} />
       </div>
     </div>
   );
@@ -498,6 +565,7 @@ export function App() {
     nextRound,
     goToMenu,
     getProgress,
+    getAnalyser,
   } = useGame();
 
   if (mode === "classic" && state.currentRound === 0) {
@@ -515,6 +583,7 @@ export function App() {
       onNext={nextRound}
       onMenu={goToMenu}
       progress={getProgress()}
+      getAnalyser={getAnalyser}
     />
   );
 }

@@ -160,20 +160,11 @@ body {
 }
 
 .waveform {
+  display: block;
   width: 100%;
+  max-width: 400px;
   height: 60px;
-  background: rgba(74, 144, 226, 0.05);
   border-radius: var(--border-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.waveform.playing {
-  background: rgba(74, 144, 226, 0.1);
-  animation: pulse 0.5s ease-in-out infinite alternate;
 }
 
 @keyframes pulse {

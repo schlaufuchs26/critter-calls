@@ -44,11 +44,32 @@ export class SoundGuessrGame {
   private gameAnimals: Animal[];
   private audioElements: HTMLAudioElement[] = [];
   private mode: GameMode;
+  private audioContext: AudioContext | null = null;
+  private analyserNode: AnalyserNode | null = null;
+  private sourceNodes: MediaElementAudioSourceNode[] = [];
 
   constructor(mode: GameMode = "classic") {
     this.mode = mode;
     this.state = this.getInitialState();
     this.gameAnimals = this.generateGamePlaylist();
+  }
+
+  public getAnalyser(): AnalyserNode | null {
+    return this.analyserNode;
+  }
+
+  private getAudioContext(): AudioContext {
+    if (!this.audioContext) {
+      this.audioContext = new AudioContext();
+      this.analyserNode = this.audioContext.createAnalyser();
+      this.analyserNode.fftSize = 256;
+      this.analyserNode.smoothingTimeConstant = 0.7;
+      this.analyserNode.connect(this.audioContext.destination);
+    }
+    if (this.audioContext.state === "suspended") {
+      this.audioContext.resume();
+    }
+    return this.audioContext;
   }
 
   private getInitialState(): GameState {
@@ -149,12 +170,19 @@ export class SoundGuessrGame {
       this.stopSound();
       this.state.isPlaying = true;
 
+      const ctx = this.getAudioContext();
+      const analyser = this.analyserNode;
+      if (!analyser) return;
+
       const playPromises = targets.map((animal) => {
         const audio = new Audio(animal.soundUrl);
         this.audioElements.push(audio);
 
+        const source = ctx.createMediaElementSource(audio);
+        source.connect(analyser);
+        this.sourceNodes.push(source);
+
         audio.addEventListener("ended", () => {
-          // Only stop global playing state if all are done
           if (this.audioElements.every((a) => a.ended || a.paused)) {
             this.state.isPlaying = false;
           }
@@ -176,6 +204,12 @@ export class SoundGuessrGame {
   }
 
   public stopSound(): void {
+    this.sourceNodes.forEach((s) => {
+      try {
+        s.disconnect();
+      } catch (_) {}
+    });
+    this.sourceNodes = [];
     this.audioElements.forEach((audio) => {
       audio.pause();
       audio.currentTime = 0;
