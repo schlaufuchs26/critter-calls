@@ -1,6 +1,14 @@
-import { Animal, animals, getRandomAnimals, generateChoices, getDailyAnimals, getDailyChoices, getTodaysSeed } from './animals';
+import {
+  type Animal,
+  animals,
+  generateChoices,
+  getDailyAnimals,
+  getDailyChoices,
+  getRandomAnimals,
+  getTodaysSeed,
+} from "./animals";
 
-export type GameMode = 'classic' | 'daily';
+export type GameMode = "classic" | "daily";
 
 export interface GameState {
   currentRound: number;
@@ -22,7 +30,7 @@ export interface GameState {
   mode: GameMode;
 }
 
-export interface RoundResult {
+interface RoundResult {
   animal: Animal | Animal[];
   selectedChoice: Animal | Animal[];
   correct: boolean;
@@ -37,7 +45,7 @@ export class SoundGuessrGame {
   private audioElements: HTMLAudioElement[] = [];
   private mode: GameMode;
 
-  constructor(mode: GameMode = 'classic') {
+  constructor(mode: GameMode = "classic") {
     this.mode = mode;
     this.state = this.getInitialState();
     this.gameAnimals = this.generateGamePlaylist();
@@ -46,7 +54,7 @@ export class SoundGuessrGame {
   private getInitialState(): GameState {
     return {
       currentRound: 0,
-      totalRounds: this.mode === 'daily' ? 5 : 10,
+      totalRounds: this.mode === "daily" ? 5 : 10,
       score: 0,
       streak: 0,
       currentAnimal: null,
@@ -61,12 +69,12 @@ export class SoundGuessrGame {
       squirrelAnimals: [],
       selectedSquirrelChoices: [],
       maxPossibleScore: 0,
-      mode: this.mode
+      mode: this.mode,
     };
   }
 
   private generateGamePlaylist(): Animal[] {
-    if (this.mode === 'daily') {
+    if (this.mode === "daily") {
       return getDailyAnimals();
     }
     return getRandomAnimals(10);
@@ -90,27 +98,39 @@ export class SoundGuessrGame {
     }
 
     this.state.currentRound++;
-    
+
     // Check if it's squirrel round (Round 7 and Round 10) — classic mode only
-    this.state.isSquirrelRound = this.mode === 'classic' && (this.state.currentRound === 7 || this.state.currentRound === 10);
-    
+    this.state.isSquirrelRound =
+      this.mode === "classic" &&
+      (this.state.currentRound === 7 || this.state.currentRound === 10);
+
     if (this.state.isSquirrelRound) {
       this.state.squirrelAnimals = getRandomAnimals(2); // 2 animals at once
       this.state.currentAnimal = null;
-      
+
       // Choices include both correct ones and 2 random ones
-      const others = animals.filter(a => !this.state.squirrelAnimals.find(s => s.name === a.name));
+      const others = animals.filter(
+        (a) => !this.state.squirrelAnimals.find((s) => s.name === a.name),
+      );
       const randomOthers = others.sort(() => 0.5 - Math.random()).slice(0, 2);
-      this.state.choices = [...this.state.squirrelAnimals, ...randomOthers].sort(() => 0.5 - Math.random());
+      this.state.choices = [
+        ...this.state.squirrelAnimals,
+        ...randomOthers,
+      ].sort(() => 0.5 - Math.random());
       this.state.selectedSquirrelChoices = [];
     } else {
       this.state.currentAnimal = this.gameAnimals[this.state.currentRound - 1];
-      this.state.choices = this.mode === 'daily'
-        ? getDailyChoices(this.state.currentAnimal, getTodaysSeed(), this.state.currentRound)
-        : generateChoices(this.state.currentAnimal, animals);
+      this.state.choices =
+        this.mode === "daily"
+          ? getDailyChoices(
+              this.state.currentAnimal,
+              getTodaysSeed(),
+              this.state.currentRound,
+            )
+          : generateChoices(this.state.currentAnimal, animals);
       this.state.squirrelAnimals = [];
     }
-    
+
     this.state.selectedChoice = null;
     this.state.showAnswer = false;
 
@@ -118,26 +138,30 @@ export class SoundGuessrGame {
   }
 
   public async playSound(): Promise<void> {
-    const targets = this.state.isSquirrelRound ? this.state.squirrelAnimals : (this.state.currentAnimal ? [this.state.currentAnimal] : []);
+    const targets = this.state.isSquirrelRound
+      ? this.state.squirrelAnimals
+      : this.state.currentAnimal
+        ? [this.state.currentAnimal]
+        : [];
     if (targets.length === 0) return;
 
     try {
       this.stopSound();
       this.state.isPlaying = true;
 
-      const playPromises = targets.map(animal => {
+      const playPromises = targets.map((animal) => {
         const audio = new Audio(animal.soundUrl);
         this.audioElements.push(audio);
-        
-        audio.addEventListener('ended', () => {
+
+        audio.addEventListener("ended", () => {
           // Only stop global playing state if all are done
-          if (this.audioElements.every(a => a.ended || a.paused)) {
+          if (this.audioElements.every((a) => a.ended || a.paused)) {
             this.state.isPlaying = false;
           }
         });
 
-        audio.addEventListener('error', (e) => {
-          console.error('Error playing audio:', e);
+        audio.addEventListener("error", (e) => {
+          console.error("Error playing audio:", e);
           this.state.isPlaying = false;
         });
 
@@ -146,13 +170,13 @@ export class SoundGuessrGame {
 
       await Promise.all(playPromises);
     } catch (error) {
-      console.error('Error playing sound:', error);
+      console.error("Error playing sound:", error);
       this.state.isPlaying = false;
     }
   }
 
   public stopSound(): void {
-    this.audioElements.forEach(audio => {
+    this.audioElements.forEach((audio) => {
       audio.pause();
       audio.currentTime = 0;
     });
@@ -165,7 +189,9 @@ export class SoundGuessrGame {
 
     if (this.state.isSquirrelRound) {
       // Toggle choice
-      const index = this.state.selectedSquirrelChoices.findIndex(c => c.name === choice.name);
+      const index = this.state.selectedSquirrelChoices.findIndex(
+        (c) => c.name === choice.name,
+      );
       if (index > -1) {
         this.state.selectedSquirrelChoices.splice(index, 1);
       } else {
@@ -184,18 +210,28 @@ export class SoundGuessrGame {
   private evaluateNormalGuess(choice: Animal): void {
     const isCorrect = choice.name === this.state.currentAnimal?.name;
     this.state.selectedChoice = choice;
-    this.finishRound(isCorrect, this.state.currentAnimal!, choice);
+    this.finishRound(isCorrect, this.state.currentAnimal as Animal, choice);
   }
 
   private evaluateSquirrelGuess(): void {
-    const correctNames = this.state.squirrelAnimals.map(a => a.name);
-    const selectedNames = this.state.selectedSquirrelChoices.map(a => a.name);
-    const isCorrect = correctNames.every(name => selectedNames.includes(name));
-    
-    this.finishRound(isCorrect, this.state.squirrelAnimals, this.state.selectedSquirrelChoices);
+    const correctNames = this.state.squirrelAnimals.map((a) => a.name);
+    const selectedNames = this.state.selectedSquirrelChoices.map((a) => a.name);
+    const isCorrect = correctNames.every((name) =>
+      selectedNames.includes(name),
+    );
+
+    this.finishRound(
+      isCorrect,
+      this.state.squirrelAnimals,
+      this.state.selectedSquirrelChoices,
+    );
   }
 
-  private finishRound(isCorrect: boolean, animal: Animal | Animal[], choice: Animal | Animal[]): void {
+  private finishRound(
+    isCorrect: boolean,
+    animal: Animal | Animal[],
+    choice: Animal | Animal[],
+  ): void {
     this.state.showAnswer = true;
 
     let points = 0;
@@ -210,9 +246,11 @@ export class SoundGuessrGame {
     // Max possible score assumes perfect streak from the start
     // Streak multipliers: >=3 rounds: 1.5x, >=5 rounds: 2x
     let currentMaxRoundPoints = baseRoundPoints;
-    if (this.state.currentRound >= 6) { // Possible to have streak of 5
+    if (this.state.currentRound >= 6) {
+      // Possible to have streak of 5
       currentMaxRoundPoints *= 2;
-    } else if (this.state.currentRound >= 4) { // Possible to have streak of 3
+    } else if (this.state.currentRound >= 4) {
+      // Possible to have streak of 3
       currentMaxRoundPoints *= 1.5;
     }
     this.state.maxPossibleScore += Math.round(currentMaxRoundPoints);
@@ -239,7 +277,7 @@ export class SoundGuessrGame {
       correct: isCorrect,
       points,
       maxPoints: Math.round(currentMaxRoundPoints),
-      isSquirrelRound: this.state.isSquirrelRound
+      isSquirrelRound: this.state.isSquirrelRound,
     });
 
     this.stopSound();
@@ -262,13 +300,21 @@ export class SoundGuessrGame {
       accuracy: Math.round(accuracy),
       correctAnswers: this.state.correctAnswers,
       totalRounds: this.state.totalRounds,
-      bestStreak: Math.max(0, ...this.state.roundHistory.map((_, i) => {
-        let streak = 0;
-        for (let j = i; j < this.state.roundHistory.length && this.state.roundHistory[j].correct; j++) {
-          streak++;
-        }
-        return streak;
-      }))
+      bestStreak: Math.max(
+        0,
+        ...this.state.roundHistory.map((_, i) => {
+          let streak = 0;
+          for (
+            let j = i;
+            j < this.state.roundHistory.length &&
+            this.state.roundHistory[j].correct;
+            j++
+          ) {
+            streak++;
+          }
+          return streak;
+        }),
+      ),
     };
   }
 }
