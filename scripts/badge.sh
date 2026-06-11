@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 # Generate a shields.io-style coverage badge SVG.
-# Usage: bash scripts/badge.sh <percent> > badges/coverage.svg
+# Usage: bash scripts/badge.sh [percent] > badges/coverage.svg
 #
 # Reads coverage/lcov.info if no percent given on command line.
+# Skips test files (matches *.test.*, *.spec.*, tests/ paths).
 
 set -euo pipefail
 
 if [[ $# -ge 1 ]]; then
   pct="$1"
 else
-  # Parse overall coverage from lcov.info
   total_lf=0
   total_lh=0
   while IFS= read -r line; do
     case "$line" in
-      LF:*) lf="${line#LF:}" ;;
+      SF:*)
+        file="${line#SF:}"
+        # Skip test files
+        [[ "$file" =~ (^tests/|\.(test|spec)\.) ]] && skip=1 || skip=0
+        ;;
+      LF:*) [[ $skip -eq 0 ]] && lf="${line#LF:}" || lf=0 ;;
       LH:*)
-        lh="${line#LH:}"
+        [[ $skip -eq 0 ]] && lh="${line#LH:}" || lh=0
         total_lf=$((total_lf + lf))
         total_lh=$((total_lh + lh))
         ;;
