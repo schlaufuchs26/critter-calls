@@ -359,11 +359,13 @@ function GameArea({
         onStop={onStop}
         getAnalyser={getAnalyser}
       />
-      {state.showAnswer ? (
-        <ResultSection state={state} onNext={onNext} />
-      ) : (
-        <ChoicesSection state={state} onGuess={onGuess} />
-      )}
+      <div style={{ minHeight: 280, width: "100%", maxWidth: 600 }}>
+        {state.showAnswer ? (
+          <ResultSection state={state} onNext={onNext} />
+        ) : (
+          <ChoicesSection state={state} onGuess={onGuess} />
+        )}
+      </div>
     </div>
   );
 }
