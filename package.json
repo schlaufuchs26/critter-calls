@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun index.html",
-    "build": "bun build index.html --outdir dist/ --target browser",
+    "build": "bun build index.html --outdir dist/ --target browser && cp -r sounds dist/",
     "start": "bun index.html",
     "test": "bun test",
     "tsc": "tsc --pretty --noEmit",
