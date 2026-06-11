@@ -81,6 +81,36 @@ describe("SoundGuessrGame", () => {
     });
   });
 
+  describe("resetToMenu", () => {
+    test("resets state to initial after a finished game", () => {
+      game = new SoundGuessrGame();
+      game.startGame();
+      for (let i = 0; i < 10; i++) {
+        const state = game.getState();
+        if (state.gameOver) break;
+        if (state.currentAnimal) game.makeGuess(state.currentAnimal);
+        game.nextRound();
+      }
+      expect(game.getState().gameOver).toBe(true);
+
+      game.resetToMenu();
+      const state = game.getState();
+      expect(state.currentRound).toBe(0);
+      expect(state.gameOver).toBe(false);
+      expect(state.score).toBe(0);
+      expect(state.mode).toBe("classic");
+    });
+
+    test("resets mode to classic even if previously daily", () => {
+      game = new SoundGuessrGame();
+      game.startGame("daily");
+      game.resetToMenu();
+      const state = game.getState();
+      expect(state.mode).toBe("classic");
+      expect(state.totalRounds).toBe(10);
+    });
+  });
+
   describe("makeGuess", () => {
     beforeEach(() => {
       game = new SoundGuessrGame();

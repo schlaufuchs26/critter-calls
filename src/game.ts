@@ -112,6 +112,11 @@ export class SoundGuessrGame {
     this.nextRound();
   }
 
+  public resetToMenu(): void {
+    this.mode = "classic";
+    this.state = this.getInitialState();
+  }
+
   public nextRound(): void {
     if (this.state.currentRound >= this.state.totalRounds) {
       this.endGame();

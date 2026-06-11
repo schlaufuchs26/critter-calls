@@ -69,6 +69,11 @@ function useGame() {
   const nextRound = useCallback(() => {
     clearCheckInterval();
     game.stopSound();
+    if (game.getState().gameOver) {
+      game.startGame(mode);
+      refresh();
+      return;
+    }
     const wasSquirrel = game.getState().isSquirrelRound;
     game.nextRound();
     const isSquirrel = game.getState().isSquirrelRound;
@@ -77,13 +82,15 @@ function useGame() {
       setShowSquirrelIntro(true);
       setTimeout(() => setShowSquirrelIntro(false), 2000);
     }
-  }, [game, refresh, clearCheckInterval]);
+  }, [game, refresh, clearCheckInterval, mode]);
 
   const goToMenu = useCallback(() => {
     clearCheckInterval();
     game.stopSound();
+    game.resetToMenu();
     setMode("classic");
-  }, [game, clearCheckInterval]);
+    refresh();
+  }, [game, refresh, clearCheckInterval]);
 
   // Keyboard shortcuts
   useEffect(() => {
