@@ -245,7 +245,9 @@ function Header({
         </div>
         <div className="stat">
           <div className="stat-value">
-            {state.score} / {state.maxPossibleScore}
+            {state.maxPossibleScore > 0
+              ? `${state.score} / ${state.maxPossibleScore}`
+              : state.score}
           </div>
           <div className="stat-label">Score</div>
         </div>
@@ -320,9 +322,7 @@ function SoundSection({
           {state.isPlaying ? "⏸️" : "▶️"}
         </button>
         <div className={`waveform ${state.isPlaying ? "playing" : ""}`}>
-          <span>
-            {state.isPlaying ? "🎵 Playing..." : "🔊 Click to play sound"}
-          </span>
+          <span>{state.isPlaying ? "🎵 Playing..." : ""}</span>
         </div>
       </div>
     </div>
