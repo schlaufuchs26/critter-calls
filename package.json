@@ -1,11 +1,11 @@
 {
-  "name": "animal-sound-guessr",
+  "name": "critter-calls",
   "version": "2.0.0",
   "description": "A fun web game where you guess animals based on their sounds",
   "type": "module",
   "scripts": {
     "dev": "bun index.html",
-    "build": "bun build index.html --outdir dist/ --target browser && cp -r sounds dist/",
+    "build": "rm -rf dist/ && bun build index.html --outdir dist/ --target browser && cp -r sounds dist/",
     "start": "bun index.html",
     "tsc": "tsc --pretty --noEmit",
     "format": "biome format --write .",

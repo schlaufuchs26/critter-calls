@@ -8,14 +8,14 @@ A fun web game where you guess animals based on their sounds! Test your knowledg
 
 1. Listen to the animal sound by clicking the play button
 2. Choose from 4 animal options
-3. Get points based on correctness and speed
+3. Get points for correct answers (with streak bonuses!)
 4. Complete 10 rounds and see your final score!
 
 ## 🎯 Features
 
 - **10 rounds per game** with different animals each time
-- **Scoring system** based on correctness and speed
-- **Streak bonuses** for consecutive correct answers
+- **Scoring system** with streak bonuses for consecutive correct answers
+- **Squirrel rounds** where you guess two animals at once
 - **Mobile-friendly** responsive design
 - **Sound visualization** with waveform animation
 - **Progress tracking** and detailed stats
@@ -51,5 +51,8 @@ The game is fully responsive and works great on mobile devices with touch contro
 ## 📄 License
 
 This project is open source and available under the MIT License.
-\n<!-- Build trigger -->
-\n## Deployment\n[Live site](https://schlaufuchs26.github.io/critter-calls/)
+
+<!-- Build trigger -->
+
+## Deployment
+[Live site](https://schlaufuchs26.github.io/critter-calls/)
