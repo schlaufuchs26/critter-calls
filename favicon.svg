@@ -1,4 +1,5 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Critter Calls</title>
   <circle cx="16" cy="16" r="16" fill="#4a90e2"/>
   <text x="16" y="22" font-size="18" text-anchor="middle" fill="white">🔊</text>
 </svg>
